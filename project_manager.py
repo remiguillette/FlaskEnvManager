@@ -134,18 +134,26 @@ class ProjectManager:
                 
                 # Start a thread to read process output
                 def read_output():
-                    while process.poll() is None:
-                        line = process.stdout.readline()
-                        if line:
-                            with self.lock:
-                                self.logs[project_id].append(line.strip())
-                                # Keep only the last 100 lines
-                                if len(self.logs[project_id]) > 100:
-                                    self.logs[project_id] = self.logs[project_id][-100:]
+                    if process and process.stdout:
+                        while process and process.poll() is None:
+                            try:
+                                line = process.stdout.readline()
+                                if line:
+                                    with self.lock:
+                                        self.logs[project_id].append(line.strip())
+                                        # Keep only the last 100 lines
+                                        if len(self.logs[project_id]) > 100:
+                                            self.logs[project_id] = self.logs[project_id][-100:]
+                            except Exception as e:
+                                logger.error(f"Error reading output: {e}")
+                                break
                     
-                    # Process has terminated
+                    # Process has terminated or there was an error
                     with self.lock:
-                        self.update_status(project_id)
+                        if project_id in self.projects:
+                            self.projects[project_id]['status'] = 'stopped'
+                        if project_id in self.processes:
+                            del self.processes[project_id]
                 
                 import threading
                 output_thread = threading.Thread(target=read_output)
@@ -167,8 +175,18 @@ class ProjectManager:
                 logger.error(f"Project {project_id} not found")
                 return False
             
-            # Check if the project is running
-            if self.get_project_status(project_id) != 'running':
+            # Check if the project is running - direct check to avoid deadlock
+            is_running = False
+            if project_id in self.processes:
+                process = self.processes[project_id]
+                if process.poll() is None:
+                    is_running = True
+            elif 'pid' in self.projects[project_id]:
+                pid = self.projects[project_id]['pid']
+                if psutil.pid_exists(pid):
+                    is_running = True
+                    
+            if not is_running:
                 logger.info(f"Project {project_id} is not running")
                 return True
             
@@ -220,18 +238,56 @@ class ProjectManager:
         """Get a project by ID."""
         with self.lock:
             if project_id in self.projects:
+                # Create a copy to avoid modifying the original while it's being read
                 project = self.projects[project_id].copy()
-                self.update_status(project_id)
+                
+                # Directly update status to avoid deadlock
+                if project_id in self.processes:
+                    process = self.processes[project_id]
+                    if process.poll() is None:
+                        project['status'] = 'running'
+                    else:
+                        project['status'] = 'stopped'
+                elif 'pid' in project:
+                    pid = project['pid']
+                    if psutil.pid_exists(pid):
+                        project['status'] = 'running'
+                    else:
+                        project['status'] = 'stopped'
+                else:
+                    project['status'] = 'stopped'
+                
                 return project
             return None
     
     def get_all_projects(self):
         """Get all projects."""
         with self.lock:
-            # Update status for all projects
-            for project_id in self.projects:
-                self.update_status(project_id)
-            return list(self.projects.values())
+            # Create a copy of projects to avoid modification issues
+            projects = []
+            for project_id, project in self.projects.items():
+                # Create a copy of the project
+                project_copy = project.copy()
+                
+                # Directly update status to avoid calling update_status which could cause deadlocks
+                if project_id in self.processes:
+                    process = self.processes[project_id]
+                    if process.poll() is None:
+                        project_copy['status'] = 'running'
+                    else:
+                        project_copy['status'] = 'stopped'
+                elif 'pid' in project:
+                    pid = project['pid']
+                    if psutil.pid_exists(pid):
+                        project_copy['status'] = 'running'
+                    else:
+                        project_copy['status'] = 'stopped'
+                else:
+                    project_copy['status'] = 'stopped'
+                
+                projects.append(project_copy)
+                
+            return projects
     
     def get_project_logs(self, project_id):
         """Get the logs for a project."""
@@ -244,8 +300,23 @@ class ProjectManager:
         """Get the status of a project."""
         with self.lock:
             if project_id in self.projects:
-                self.update_status(project_id)
-                return self.projects[project_id]['status']
+                # Check status directly without calling update_status
+                if project_id in self.processes:
+                    process = self.processes[project_id]
+                    if process and process.poll() is None:
+                        return 'running'
+                    else:
+                        return 'stopped'
+                elif 'pid' in self.projects[project_id]:
+                    pid = self.projects[project_id]['pid']
+                    if psutil.pid_exists(pid):
+                        try:
+                            process = psutil.Process(pid)
+                            if 'python' in process.name().lower():
+                                return 'running'
+                        except:
+                            pass
+                return 'stopped'
             return 'unknown'
     
     def update_status(self, project_id):

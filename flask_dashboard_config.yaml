@@ -1,1 +1,9 @@
-projects: {}
+projects:
+  29471b54-03bd-441d-b15f-87626c751d03:
+    added_date: '2025-03-20 22:58:49'
+    entry_file: app.py
+    id: 29471b54-03bd-441d-b15f-87626c751d03
+    name: test
+    path: /tmp/test
+    port: '5000'
+    status: stopped

@@ -98,10 +98,12 @@ class ProjectManager:
             
             project = self.projects[project_id]
             
-            # Check if already running
-            if self.get_project_status(project_id) == 'running':
-                logger.info(f"Project {project_id} is already running")
-                return True
+            # Check if already running - directly check process status to avoid deadlock
+            if project_id in self.processes:
+                process = self.processes[project_id]
+                if process.poll() is None:
+                    logger.info(f"Project {project_id} is already running")
+                    return True
             
             try:
                 # Prepare the command

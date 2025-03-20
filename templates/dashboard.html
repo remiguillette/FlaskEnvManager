@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="dashboard-title">Flask Environment Dashboard</h1>
+            <p class="text-muted">Manage your local Flask projects</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('add_project') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New Project
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if projects %}
+    <div class="card-deck">
+        {% for project in projects %}
+            <div class="card project-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{{ project.name }}</h5>
+                    <span id="project-status-{{ project.id }}" class="badge {% if project.status == 'running' %}bg-success{% elif project.status == 'error' %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ project.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text"><strong>Path:</strong> <span class="text-muted">{{ project.path }}</span></p>
+                    <p class="card-text"><strong>Entry File:</strong> <span class="text-muted">{{ project.entry_file }}</span></p>
+                    <p class="card-text"><strong>Port:</strong> <span class="text-muted">{{ project.port }}</span></p>
+                    <p class="card-text"><strong>Added:</strong> <span class="text-muted">{{ project.added_date }}</span></p>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <div class="btn-group">
+                            <button id="start-btn-{{ project.id }}" class="btn btn-sm btn-success btn-start-project" data-project-id="{{ project.id }}" {% if project.status == 'running' %}disabled{% endif %}>
+                                <i class="fas fa-play me-1"></i>Start
+                            </button>
+                            <button id="stop-btn-{{ project.id }}" class="btn btn-sm btn-danger btn-stop-project" data-project-id="{{ project.id }}" {% if project.status != 'running' %}disabled{% endif %}>
+                                <i class="fas fa-stop me-1"></i>Stop
+                            </button>
+                        </div>
+                        <a href="{{ url_for('project_details', project_id=project.id) }}" class="btn btn-sm btn-info">
+                            <i class="fas fa-info-circle me-1"></i>Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body text-center">
+            <h3 class="text-muted"><i class="fas fa-folder-open me-2"></i>No Projects</h3>
+            <p>You haven't added any Flask projects yet.</p>
+            <a href="{{ url_for('add_project') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add Your First Project
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

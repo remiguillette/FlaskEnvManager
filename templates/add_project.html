@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="fas fa-plus me-2"></i>Add Flask Project</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('add_project') }}" method="POST" class="form-add-project">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Project Name</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="My Flask App" required>
+                        <div class="form-text">A friendly name for your project</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="path" class="form-label">Project Path</label>
+                        <input type="text" class="form-control" id="path" name="path" placeholder="/path/to/your/flask/project" required>
+                        <div class="form-text">The absolute path to your Flask project directory</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="entry_file" class="form-label">Entry File</label>
+                        <input type="text" class="form-control" id="entry_file" name="entry_file" placeholder="main.py" value="main.py">
+                        <div class="form-text">The Python file that starts your Flask application</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="port" class="form-label">Port</label>
+                        <input type="number" class="form-control" id="port" name="port" placeholder="5000" value="5000" min="1024" max="65535">
+                        <div class="form-text">The port your Flask application runs on</div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Project
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ms-2">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>About Flask Projects</h5>
+            </div>
+            <div class="card-body">
+                <p>This dashboard helps you manage your local Flask development environments. Here's what you need to know:</p>
+                
+                <ul class="mb-0">
+                    <li><strong>Project Path:</strong> The full directory path where your Flask project is located.</li>
+                    <li><strong>Entry File:</strong> The main Python file that runs your Flask application (often app.py, main.py, run.py).</li>
+                    <li><strong>Virtual Environment:</strong> If your project uses a virtual environment named "venv" at the project path, it will be used automatically.</li>
+                    <li><strong>Port:</strong> The port number your Flask application will listen on (default is 5000).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

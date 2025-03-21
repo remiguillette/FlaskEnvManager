@@ -1,14 +1,19 @@
-<<<<<<< HEAD
-projects: {}
-=======
 projects:
-  2243a9fa-1226-4f04-9952-88d4a617f0fc:
-    added_date: '2025-03-20 21:37:37'
+  3cd31233-01f3-4e16-9b8c-8db17c6e2428:
+    added_date: '2025-03-20 22:36:54'
     entry_file: app.py
-    id: 2243a9fa-1226-4f04-9952-88d4a617f0fc
+    id: 3cd31233-01f3-4e16-9b8c-8db17c6e2428
     name: GO
     path: /home/remiguillette/venv/GO-transit-display
-    pid: 4752
-    port: 5000
+    pid: 5199
+    port: 5001
+    status: stopped
+  e45fc29b-5e18-4f52-99d5-e8bd7e216bb6:
+    added_date: '2025-03-20 23:09:47'
+    entry_file: main.py
+    id: e45fc29b-5e18-4f52-99d5-e8bd7e216bb6
+    name: chat
+    path: /home/remiguillette/venv/BubbleChatControl
+    pid: 5636
+    port: 5002
     status: running
->>>>>>> 313f5b0 (deeeeeeajouté go)

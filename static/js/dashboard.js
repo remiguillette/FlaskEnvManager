@@ -30,14 +30,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function refreshProjectStatuses() {
     fetch('/api/projects')
-        .then(response => response.json())
-        .then(projects => {
-            projects.forEach(project => {
-                updateProjectStatus(project);
-            });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success === false) {
+                throw new Error(data.message || 'Unknown error');
+            }
+            
+            // If it's an array, process it as before
+            if (Array.isArray(data)) {
+                data.forEach(project => {
+                    updateProjectStatus(project);
+                });
+            } else {
+                console.error('Unexpected data format from API:', data);
+            }
         })
         .catch(error => {
             console.error('Error fetching project statuses:', error);
+            // Only show toast for serious errors, not for regular polling
+            if (error.message !== 'Failed to fetch') {
+                showToast('Error', 'Failed to fetch project statuses. Check server logs.', 'danger');
+            }
         });
 }
 
@@ -162,9 +180,18 @@ function refreshProjectLogs(projectId) {
     if (!logsElement) return;
     
     fetch(`/api/project/${projectId}/logs`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success && data.logs.length > 0) {
+            if (data.success === false) {
+                throw new Error(data.message || 'Unknown error');
+            }
+            
+            if (data.success && data.logs && data.logs.length > 0) {
                 logsElement.innerHTML = '';
                 data.logs.forEach(log => {
                     const logLine = document.createElement('div');
@@ -178,6 +205,7 @@ function refreshProjectLogs(projectId) {
         })
         .catch(error => {
             console.error('Error fetching project logs:', error);
+            // Don't show a toast for log errors, as they happen too frequently
         });
 }
 

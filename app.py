@@ -70,8 +70,12 @@ def project_details(project_id):
 @app.route('/api/projects')
 def api_projects():
     """API endpoint to get all projects and their status."""
-    projects = project_manager.get_all_projects()
-    return jsonify(projects)
+    try:
+        projects = project_manager.get_all_projects()
+        return jsonify(projects)
+    except Exception as e:
+        logger.error(f"Error getting projects: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
 
 @app.route('/api/project/<project_id>/start', methods=['POST'])
 def api_start_project(project_id):

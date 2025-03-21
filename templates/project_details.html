@@ -87,6 +87,25 @@
                 </div>
             </div>
             {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Dependencies</h5>
+                    <button id="check-dependencies-btn" class="btn btn-sm btn-outline-primary" data-project-id="{{ project.id }}">
+                        <i class="fas fa-sync-alt me-1"></i>Check
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="dependencies-container">
+                        <p class="text-muted">Click "Check" to scan for project dependencies</p>
+                    </div>
+                    <div id="install-dependencies-container" class="mt-3" style="display: none;">
+                        <button id="install-dependencies-btn" class="btn btn-primary" data-project-id="{{ project.id }}">
+                            <i class="fas fa-download me-1"></i>Install Dependencies
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="col-md-6">
@@ -128,6 +147,162 @@
 
 {% block extra_js %}
 <script>
-    // Project-specific JavaScript can go here if needed
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up event listener for dependency check button
+        const checkDependenciesBtn = document.getElementById('check-dependencies-btn');
+        if (checkDependenciesBtn) {
+            checkDependenciesBtn.addEventListener('click', function() {
+                const projectId = this.dataset.projectId;
+                checkDependencies(projectId);
+            });
+        }
+
+        // Set up event listener for dependency installation button
+        const installDependenciesBtn = document.getElementById('install-dependencies-btn');
+        if (installDependenciesBtn) {
+            installDependenciesBtn.addEventListener('click', function() {
+                const projectId = this.dataset.projectId;
+                installDependencies(projectId);
+            });
+        }
+    });
+
+    function checkDependencies(projectId) {
+        const dependenciesContainer = document.getElementById('dependencies-container');
+        const installContainer = document.getElementById('install-dependencies-container');
+        
+        // Show loading state
+        dependenciesContainer.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="ms-2">Scanning for dependencies...</span>
+            </div>
+        `;
+        
+        installContainer.style.display = 'none';
+        
+        fetch(`/api/project/${projectId}/dependencies`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.found) {
+                    // Requirements found
+                    const reqList = document.createElement('div');
+                    reqList.innerHTML = `
+                        <p class="mb-2">Found <strong>${data.requirements.length}</strong> dependencies in requirements.txt:</p>
+                    `;
+                    
+                    const reqListGroup = document.createElement('ul');
+                    reqListGroup.className = 'list-group';
+                    
+                    data.requirements.forEach(req => {
+                        const item = document.createElement('li');
+                        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        item.textContent = req;
+                        reqListGroup.appendChild(item);
+                    });
+                    
+                    reqList.appendChild(reqListGroup);
+                    dependenciesContainer.innerHTML = '';
+                    dependenciesContainer.appendChild(reqList);
+                    
+                    // Show install button
+                    installContainer.style.display = 'block';
+                } else {
+                    // No requirements found
+                    dependenciesContainer.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error checking dependencies:', error);
+                dependenciesContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        Failed to check dependencies: ${error}
+                    </div>
+                `;
+            });
+    }
+
+    function installDependencies(projectId) {
+        const dependenciesContainer = document.getElementById('dependencies-container');
+        const installContainer = document.getElementById('install-dependencies-container');
+        const installBtn = document.getElementById('install-dependencies-btn');
+        
+        // Disable button and show loading state
+        installBtn.disabled = true;
+        installBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Installing...
+        `;
+        
+        fetch(`/api/project/${projectId}/install-dependencies`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Re-enable button
+            installBtn.disabled = false;
+            installBtn.innerHTML = '<i class="fas fa-download me-1"></i>Install Dependencies';
+            
+            if (data.success) {
+                // Show success message
+                showToast('Success', 'Dependencies installed successfully', 'success');
+                
+                // Show installation output
+                const outputDiv = document.createElement('div');
+                outputDiv.className = 'mt-3';
+                outputDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Dependencies installed successfully
+                    </div>
+                    <div class="mt-2">
+                        <p><strong>Installation Log:</strong></p>
+                        <pre class="bg-dark text-light p-3 rounded">${data.output ? data.output.join('\n') : 'No output'}</pre>
+                    </div>
+                `;
+                
+                dependenciesContainer.appendChild(outputDiv);
+            } else {
+                // Show error message
+                showToast('Error', data.message, 'danger');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-3';
+                errorDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        ${data.message}
+                    </div>
+                    ${data.output ? `
+                    <div class="mt-2">
+                        <p><strong>Error Log:</strong></p>
+                        <pre class="bg-dark text-light p-3 rounded">${data.output.join('\n')}</pre>
+                    </div>
+                    ` : ''}
+                `;
+                
+                dependenciesContainer.appendChild(errorDiv);
+            }
+        })
+        .catch(error => {
+            // Re-enable button
+            installBtn.disabled = false;
+            installBtn.innerHTML = '<i class="fas fa-download me-1"></i>Install Dependencies';
+            
+            console.error('Error installing dependencies:', error);
+            showToast('Error', 'Failed to install dependencies', 'danger');
+        });
+    }
 </script>
 {% endblock %}

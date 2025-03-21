@@ -54,24 +54,25 @@ function refreshProjectStatuses() {
             return response.json();
         })
         .then(data => {
-            if (data.success === false) {
-                throw new Error(data.message || 'Unknown error');
-            }
-            
-            // If it's an array, process it as before
+            // Handle both array and object responses
             if (Array.isArray(data)) {
                 data.forEach(project => {
                     updateProjectStatus(project);
                 });
-            } else {
-                console.error('Unexpected data format from API:', data);
+            } else if (data && typeof data === 'object') {
+                // Handle object response
+                const projects = Object.values(data);
+                projects.forEach(project => {
+                    if (project && project.id) {
+                        updateProjectStatus(project);
+                    }
+                });
             }
         })
         .catch(error => {
-            console.error('Error fetching project statuses:', error);
-            // Only show toast for serious errors, not for regular polling
+            // Reduce console noise by only logging non-network errors
             if (error.message !== 'Failed to fetch') {
-                showToast('Error', 'Failed to fetch project statuses. Check server logs.', 'danger');
+                console.error('Error fetching project statuses:', error);
             }
         });
 }

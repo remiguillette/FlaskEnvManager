@@ -78,14 +78,27 @@ class ProjectManager:
         """Remove a project from the manager."""
         with self.lock:
             if project_id in self.projects:
-                # Stop the project if it's running
-                if self.get_project_status(project_id) == 'running':
+                # Check status directly to avoid lock recursion
+                is_running = False
+                if project_id in self.processes:
+                    process = self.processes[project_id]
+                    if process.poll() is None:
+                        is_running = True
+                elif 'pid' in self.projects[project_id]:
+                    pid = self.projects[project_id]['pid']
+                    if psutil.pid_exists(pid):
+                        is_running = True
+
+                # Stop if running
+                if is_running:
                     self.stop_project(project_id)
                 
                 # Remove the project
                 del self.projects[project_id]
                 if project_id in self.logs:
                     del self.logs[project_id]
+                if project_id in self.processes:
+                    del self.processes[project_id]
                 return self.save_config()
             return False
     

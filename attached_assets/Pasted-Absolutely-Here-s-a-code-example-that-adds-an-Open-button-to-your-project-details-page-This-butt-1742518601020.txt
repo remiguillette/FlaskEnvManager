@@ -1,0 +1,92 @@
+Absolutely! Here's a code example that adds an "Open" button to your project details page. This button:
+
+Only displays when the project is running.
+Changes color to green when the project is started.
+Opens the project URL in a new Chrome tab. HTML code (Jinja2):
+
+HTML
+
+<div class="btn-group">
+ {% if project.status == 'running' %}
+ <button id="open-btn-{{ project.id }}" class="btn btn-success" onclick="openProject('{{ project.port }}')">
+ <i class="fas fa-external-link-alt me-1"></i>Open
+ </button>
+ {% endif %}
+</div>
+JavaScript code:
+
+JavaScript
+
+function openProject(port) {
+ window.open(`http://localhost:${port}`, '_blank');
+}
+
+// Update button color when status changes
+function updateOpenButton(projectId, status) {
+ const openBtn = document.getElementById(`open-btn-${projectId}`);
+ if (openBtn) {
+ if (status === 'running') {
+ openBtn.classList.add('btn-success');
+ openBtn.classList.remove('btn-secondary');
+ } else {
+ openBtn.classList.add('btn-secondary');
+ openBtn.classList.remove('btn-success');
+ }
+}
+}
+
+// Call updateOpenButton when the page loads and after each status update
+document.addEventListener('DOMContentLoaded', function() {
+const projectDetailsElement = document.getElementById('project-details');
+const projectId = projectDetailsElement ? projectDetailsElement.dataset.projectId : null;
+const projectStatus = document.getElementById(`project-status-${projectId}`).textContent.trim().toLowerCase();
+updateOpenButton(projectId, projectStatus);
+});
+
+/ Example call after a status update (adapt according to your logic)
+// updateOpenButton(projectId, 'running');
+Explanations:
+
+HTML:
+An "Open" button is added to the btn-group. It is only displayed if project.status == 'running'.
+The openProject() function is called upon click, passing the project port.
+JavaScript:
+The openProject() function uses window.open() to open the URL in a new tab.
+The updateOpenButton() function updates the button color based on the project status.
+updateOpenButton() is called when the page loads to initialize the color.
+You will need to adapt the updateOpenButton() call example to your status update logic (e.g., after an API call).
+IP Adaptation:
+
+If you want the button to adapt to your machine's IP address, you will need to retrieve the IP address on the server side (Flask) and pass it to the Jinja2 template. Here's how to do it:
+
+Flask code:
+
+Python
+
+import socket
+
+def get_ip_address():
+ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+ s.connect(("8.8.8.8", 80))
+ return s.getsockname()[0]
+
+@app.route('/project/<int:project_id>')
+def project_details(project_id):
+ # ... retrieve project details ...
+ ip_address = get_ip_address()
+ return render_template('project_details.html', project=project, ip_address=ip_address)
+HTML code (Jinja2):
+
+HTML
+
+<button id="open-btn-{{ project.id }}" class="btn btn-success" onclick="openProject('{{ ip_address }}', '{{ project.port }}')">
+<i class="fas fa-external-link-alt me-1"></i>Open
+</button>
+JavaScript Code:
+
+JavaScript
+
+function openProject(ip, port) {
+window.open(`http://${ip}:${port}`, '_blank');
+}
+Remember to adapt this example to your existing code and test the changes.

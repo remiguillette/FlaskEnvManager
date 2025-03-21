@@ -30,7 +30,12 @@
                     <div class="mb-3">
                         <label for="port" class="form-label">Port</label>
                         <input type="number" class="form-control" id="port" name="port" placeholder="5000" value="5000" min="1024" max="65535">
-                        <div class="form-text">The port your Flask application runs on</div>
+                        <div class="form-text">
+                            The port your Flask application runs on (must be unique per project)
+                            <span class="d-block mt-1 small text-info">
+                                <i class="fas fa-info-circle me-1"></i>Common Flask ports: 5000, 5001, 5002, 8000, 8080
+                            </span>
+                        </div>
                     </div>
                     
                     <div class="mt-4">
@@ -57,6 +62,7 @@
                     <li><strong>Entry File:</strong> The main Python file that runs your Flask application (often app.py, main.py, run.py).</li>
                     <li><strong>Virtual Environment:</strong> If your project uses a virtual environment named "venv" at the project path, it will be used automatically.</li>
                     <li><strong>Port:</strong> The port number your Flask application will listen on (default is 5000).</li>
+                    <li><strong>Multiple Projects:</strong> You can run multiple Flask applications simultaneously by assigning different ports to each project.</li>
                 </ul>
             </div>
         </div>

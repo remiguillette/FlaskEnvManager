@@ -44,6 +44,23 @@ def add_project():
         if not os.path.exists(path):
             flash(f'The path {path} does not exist!', 'danger')
             return redirect(url_for('add_project'))
+        
+        # Validate port
+        try:
+            port = int(port)
+            if port < 1024 or port > 65535:
+                flash(f'Port must be between 1024 and 65535!', 'danger')
+                return redirect(url_for('add_project'))
+        except ValueError:
+            flash(f'Port must be a valid number!', 'danger')
+            return redirect(url_for('add_project'))
+        
+        # Check for port conflicts with existing projects
+        projects = project_manager.get_all_projects()
+        for project in projects:
+            if int(project['port']) == port:
+                flash(f'Port {port} is already in use by project "{project["name"]}"!', 'danger')
+                return redirect(url_for('add_project'))
             
         # Add the project
         success = project_manager.add_project(name, path, entry_file, port)

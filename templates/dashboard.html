@@ -28,7 +28,15 @@
                 <div class="card-body">
                     <p class="card-text"><strong>Path:</strong> <span class="text-muted">{{ project.path }}</span></p>
                     <p class="card-text"><strong>Entry File:</strong> <span class="text-muted">{{ project.entry_file }}</span></p>
-                    <p class="card-text"><strong>Port:</strong> <span class="text-muted">{{ project.port }}</span></p>
+                    <p class="card-text d-flex align-items-center">
+                        <strong>Port:</strong>
+                        <span class="ms-1 badge {% if project.status == 'running' %}bg-success{% else %}bg-secondary{% endif %} me-2">{{ project.port }}</span>
+                        {% if project.status == 'running' %}
+                        <a href="http://localhost:{{ project.port }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>Open
+                        </a>
+                        {% endif %}
+                    </p>
                     <p class="card-text"><strong>Added:</strong> <span class="text-muted">{{ project.added_date }}</span></p>
                 </div>
                 <div class="card-footer">

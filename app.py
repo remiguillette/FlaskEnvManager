@@ -113,6 +113,26 @@ def api_project_status(project_id):
         logger.error(f"Error getting status for project {project_id}: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
 
+@app.route('/api/project/<project_id>/dependencies')
+def api_project_dependencies(project_id):
+    """API endpoint to get the dependencies of a project."""
+    try:
+        result = project_manager.check_dependencies(project_id)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error checking dependencies for project {project_id}: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/api/project/<project_id>/install-dependencies', methods=['POST'])
+def api_install_dependencies(project_id):
+    """API endpoint to install dependencies for a project."""
+    try:
+        result = project_manager.install_dependencies(project_id)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error installing dependencies for project {project_id}: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @app.route('/api/project/<project_id>/remove', methods=['POST'])
 def api_remove_project(project_id):
     """API endpoint to remove a project."""

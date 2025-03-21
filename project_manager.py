@@ -319,6 +319,81 @@ class ProjectManager:
                 return 'stopped'
             return 'unknown'
     
+    def check_dependencies(self, project_id):
+        """Check and return the dependencies of a project."""
+        if project_id not in self.projects:
+            return {'found': False, 'message': 'Project not found'}
+        
+        project = self.projects[project_id]
+        path = project['path']
+        
+        # Check for requirements.txt
+        req_file = os.path.join(path, 'requirements.txt')
+        if not os.path.exists(req_file):
+            return {'found': False, 'message': 'No requirements.txt found'}
+        
+        # Read requirements
+        with open(req_file, 'r') as f:
+            requirements = [line.strip() for line in f.readlines() if line.strip() and not line.startswith('#')]
+        
+        return {'found': True, 'requirements': requirements}
+    
+    def install_dependencies(self, project_id):
+        """Install dependencies for a project."""
+        if project_id not in self.projects:
+            return {'success': False, 'message': 'Project not found'}
+        
+        deps = self.check_dependencies(project_id)
+        if not deps['found']:
+            return {'success': False, 'message': deps['message']}
+        
+        project = self.projects[project_id]
+        path = project['path']
+        
+        # Check for virtual environment
+        venv_path = os.path.join(path, 'venv')
+        venv_bin = os.path.join(venv_path, 'bin', 'pip')
+        
+        if os.path.exists(venv_bin):
+            # Use venv pip
+            pip_path = venv_bin
+        else:
+            # Use system pip
+            pip_path = 'pip'
+        
+        try:
+            # Install requirements
+            process = subprocess.Popen(
+                [pip_path, 'install', '-r', os.path.join(path, 'requirements.txt')],
+                cwd=path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
+            
+            # Capture output
+            output = []
+            if process.stdout:
+                for line in iter(process.stdout.readline, ''):
+                    output.append(line.strip())
+                    if process.poll() is not None:
+                        break
+            
+            # Get remaining output
+            remaining_output, _ = process.communicate()
+            if remaining_output:
+                output.extend(remaining_output.splitlines())
+            
+            if process.returncode == 0:
+                return {'success': True, 'message': 'Dependencies installed successfully', 'output': output}
+            else:
+                return {'success': False, 'message': 'Error installing dependencies', 'output': output}
+        
+        except Exception as e:
+            logger.error(f"Error installing dependencies: {e}")
+            return {'success': False, 'message': f'Error: {str(e)}'}
+    
     def update_status(self, project_id):
         """Update the status of a project based on its process."""
         if project_id not in self.projects:

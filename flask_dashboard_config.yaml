@@ -1,1 +1,14 @@
+<<<<<<< HEAD
 projects: {}
+=======
+projects:
+  2243a9fa-1226-4f04-9952-88d4a617f0fc:
+    added_date: '2025-03-20 21:37:37'
+    entry_file: app.py
+    id: 2243a9fa-1226-4f04-9952-88d4a617f0fc
+    name: GO
+    path: /home/remiguillette/venv/GO-transit-display
+    pid: 4752
+    port: 5000
+    status: running
+>>>>>>> 313f5b0 (deeeeeeajouté go)

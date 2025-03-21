@@ -1,9 +1,22 @@
 projects:
-  29471b54-03bd-441d-b15f-87626c751d03:
-    added_date: '2025-03-20 22:58:49'
-    entry_file: app.py
-    id: 29471b54-03bd-441d-b15f-87626c751d03
-    name: test
-    path: /tmp/test
-    port: '5000'
-    status: error
+29471b54-03bd-441d-b15f-87626c751d03:
+  added_date: '2025-03-20 22:58:49'
+  entry_file: app.py
+  id: 29471b54-03bd-441d-b15f-87626c751d03
+  name: test
+  path: /tmp/test
+  port: '5000'
+
+  status: error
+
+  status: stopped
+ebc886ff-7e6c-4703-830e-1ee294dd8f7f:
+  added_date: '2025-03-20 19:28:41'
+  entry_file: app.py
+  id: ebc886ff-7e6c-4703-830e-1ee294dd8f7f
+  name: GO
+  path: /home/remiguillette/venv/GO-transit-display
+  pid: 4374
+  port: '5000'
+  status: running
+

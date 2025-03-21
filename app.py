@@ -1,7 +1,8 @@
 import os
 import logging
 import json
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, g, session
+from flask_babel import Babel, gettext as _
 from project_manager import ProjectManager
 
 # Setup logging
@@ -14,6 +15,32 @@ app.secret_key = os.environ.get("SESSION_SECRET", "devkey-replace-in-production"
 
 # Initialize project manager
 project_manager = ProjectManager()
+
+# Configure Babel
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_SUPPORTED_LOCALES'] = ['en', 'fr']
+
+# Define locale selector function
+def get_locale():
+    """
+    Select the best language based on user preference and browser settings
+    """
+    # Check if the user has set a language preference in the session
+    if 'lang_code' in session:
+        return session['lang_code']
+    
+    # Otherwise, try to detect from the browser's accept-language header
+    return request.accept_languages.best_match(app.config['BABEL_SUPPORTED_LOCALES'])
+
+# Initialize Flask-Babel with the locale selector
+babel = Babel(app, locale_selector=get_locale)
+
+@app.before_request
+def before_request():
+    """
+    Set the language for the current request
+    """
+    g.lang_code = get_locale()
 
 @app.route('/')
 def index():
@@ -193,10 +220,28 @@ def page_not_found(e):
     """Handle 404 errors."""
     return render_template('base.html', error="Page not found"), 404
 
+@app.route('/set-language/<lang>')
+def set_language(lang):
+    """Set the language for the user session."""
+    # Validate the language
+    if lang in app.config['BABEL_SUPPORTED_LOCALES']:
+        session['lang_code'] = lang
+        flash(_('Language changed successfully!'), 'success')
+    else:
+        flash(_('Invalid language selection!'), 'danger')
+    
+    # Redirect to the previous page or dashboard
+    return redirect(request.referrer or url_for('dashboard'))
+
+@app.route('/help')
+def help_page():
+    """Display the help and documentation page."""
+    return render_template('help.html')
+
 @app.errorhandler(500)
 def server_error(e):
     """Handle 500 errors."""
-    return render_template('base.html', error="Internal server error"), 500
+    return render_template('base.html', error=_("Internal server error")), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

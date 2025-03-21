@@ -1,0 +1,258 @@
+# French translations for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-03-21 00:30+0000\n"
+"PO-Revision-Date: 2025-03-21 00:30+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app.py:229
+msgid "Language changed successfully!"
+msgstr "Langue changée avec succès!"
+
+#: app.py:231
+msgid "Invalid language selection!"
+msgstr "Sélection de langue invalide!"
+
+#: app.py:244
+msgid "Internal server error"
+msgstr "Erreur interne du serveur"
+
+#: templates/base.html:6
+msgid "Flask Environment Dashboard"
+msgstr "Tableau de Bord des Environnements Flask"
+
+#: templates/base.html:27
+msgid "View all projects"
+msgstr "Voir tous les projets"
+
+#: templates/base.html:28
+msgid "Dashboard"
+msgstr "Tableau de Bord"
+
+#: templates/base.html:32
+msgid "Add a new Flask project"
+msgstr "Ajouter un nouveau projet Flask"
+
+#: templates/base.html:33
+msgid "Add Project"
+msgstr "Ajouter un Projet"
+
+#: templates/base.html:37
+msgid "View documentation and help"
+msgstr "Voir la documentation et l'aide"
+
+#: templates/base.html:38
+msgid "Help"
+msgstr "Aide"
+
+#: templates/base.html:43
+msgid "Language"
+msgstr "Langue"
+
+#: templates/help.html:9
+msgid "Help & Documentation"
+msgstr "Aide & Documentation"
+
+#: templates/help.html:17
+msgid "Getting Started"
+msgstr "Commencer"
+
+#: templates/help.html:22
+msgid ""
+"The Flask Environment Dashboard allows you to manage multiple Flask "
+"applications from a single interface."
+msgstr ""
+"Le Tableau de Bord des Environnements Flask vous permet de gérer plusieurs "
+"applications Flask à partir d'une seule interface."
+
+#: templates/help.html:24
+msgid "Add your Flask projects by clicking \"Add Project\" in the navigation bar."
+msgstr "Ajoutez vos projets Flask en cliquant sur \"Ajouter un Projet\" dans la barre de navigation."
+
+#: templates/help.html:25
+msgid "Specify the project name, path, entry file, and port."
+msgstr "Spécifiez le nom du projet, le chemin, le fichier d'entrée et le port."
+
+#: templates/help.html:26
+msgid "Start and stop your projects from the dashboard."
+msgstr "Démarrez et arrêtez vos projets depuis le tableau de bord."
+
+#: templates/help.html:27
+msgid "View detailed information, logs, and dependencies for each project."
+msgstr "Consultez les informations détaillées, les journaux et les dépendances pour chaque projet."
+
+#: templates/help.html:37
+msgid "Adding Projects"
+msgstr "Ajout de Projets"
+
+#: templates/help.html:42
+msgid "To add a new Flask project:"
+msgstr "Pour ajouter un nouveau projet Flask:"
+
+#: templates/help.html:44
+msgid "Click \"Add Project\" in the navigation bar."
+msgstr ""
+
+#: templates/help.html:45
+msgid "Project Name: A descriptive name for your project."
+msgstr ""
+
+#: templates/help.html:46
+msgid "Project Path: The absolute file path to your project directory."
+msgstr ""
+
+#: templates/help.html:47
+msgid ""
+"Entry File: The Python file that contains your Flask app (default: "
+"main.py)."
+msgstr ""
+
+#: templates/help.html:48
+msgid "Port: The port your Flask app will run on (default: 5000)."
+msgstr ""
+
+#: templates/help.html:51
+msgid "Each project must use a unique port to avoid conflicts."
+msgstr ""
+
+#: templates/help.html:61
+msgid "Managing Projects"
+msgstr ""
+
+#: templates/help.html:66
+msgid "The dashboard provides various tools to manage your Flask projects:"
+msgstr ""
+
+#: templates/help.html:68
+msgid "Start/Stop:"
+msgstr ""
+
+#: templates/help.html:68
+msgid "Control the execution of your Flask app."
+msgstr ""
+
+#: templates/help.html:69
+msgid "View Details:"
+msgstr ""
+
+#: templates/help.html:69
+msgid "See comprehensive information about your project."
+msgstr ""
+
+#: templates/help.html:70
+msgid "View Logs:"
+msgstr ""
+
+#: templates/help.html:70
+msgid "Monitor the console output of your running app."
+msgstr ""
+
+#: templates/help.html:71
+msgid "Manage Dependencies:"
+msgstr ""
+
+#: templates/help.html:71
+msgid "Check and install project dependencies."
+msgstr ""
+
+#: templates/help.html:72
+msgid "Remove Project:"
+msgstr ""
+
+#: templates/help.html:72
+msgid ""
+"Remove a project from the dashboard (this does not delete your project "
+"files)."
+msgstr ""
+
+#: templates/help.html:82
+msgid "Dependency Management"
+msgstr ""
+
+#: templates/help.html:87
+msgid ""
+"The dashboard can automatically detect and install dependencies for your "
+"Flask projects:"
+msgstr ""
+
+#: templates/help.html:89
+msgid "Go to the project details page."
+msgstr ""
+
+#: templates/help.html:90
+msgid "Click \"Check Dependencies\" to scan for missing packages."
+msgstr ""
+
+#: templates/help.html:91
+msgid ""
+"If missing dependencies are found, click \"Install Dependencies\" to "
+"install them."
+msgstr ""
+
+#: templates/help.html:94
+msgid ""
+"The dependency detection supports requirements.txt files and standard "
+"import statements in your code."
+msgstr ""
+
+#: templates/help.html:104
+msgid "Troubleshooting"
+msgstr ""
+
+#: templates/help.html:109
+msgid "Common Issues"
+msgstr ""
+
+#: templates/help.html:112
+msgid "Project won't start:"
+msgstr ""
+
+#: templates/help.html:114
+msgid "Check that the path and entry file are correct."
+msgstr ""
+
+#: templates/help.html:115
+msgid "Verify that all dependencies are installed."
+msgstr ""
+
+#: templates/help.html:116
+msgid "Check the logs for specific error messages."
+msgstr ""
+
+#: templates/help.html:120
+msgid "Port conflicts:"
+msgstr ""
+
+#: templates/help.html:122
+msgid "Ensure each project uses a unique port."
+msgstr ""
+
+#: templates/help.html:123
+msgid "Check if another application is already using the specified port."
+msgstr ""
+
+#: templates/help.html:127
+msgid "Missing dependencies:"
+msgstr ""
+
+#: templates/help.html:129
+msgid "Use the dependency checker to identify and install missing packages."
+msgstr ""
+
+#: templates/help.html:130
+msgid "For packages not automatically detected, install them manually using pip."
+msgstr ""
+

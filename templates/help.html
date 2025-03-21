@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fas fa-question-circle me-2"></i>{{ _('Help & Documentation') }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="helpAccordion">
+                        <!-- Getting Started Section -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    <i class="fas fa-play-circle me-2"></i> {{ _('Getting Started') }}
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>{{ _('The Flask Environment Dashboard allows you to manage multiple Flask applications from a single interface.') }}</p>
+                                    <ol>
+                                        <li>{{ _('Add your Flask projects by clicking "Add Project" in the navigation bar.') }}</li>
+                                        <li>{{ _('Specify the project name, path, entry file, and port.') }}</li>
+                                        <li>{{ _('Start and stop your projects from the dashboard.') }}</li>
+                                        <li>{{ _('View detailed information, logs, and dependencies for each project.') }}</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Adding Projects Section -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    <i class="fas fa-plus-circle me-2"></i> {{ _('Adding Projects') }}
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>{{ _('To add a new Flask project:') }}</p>
+                                    <ol>
+                                        <li>{{ _('Click "Add Project" in the navigation bar.') }}</li>
+                                        <li>{{ _('Project Name: A descriptive name for your project.') }}</li>
+                                        <li>{{ _('Project Path: The absolute file path to your project directory.') }}</li>
+                                        <li>{{ _('Entry File: The Python file that contains your Flask app (default: main.py).') }}</li>
+                                        <li>{{ _('Port: The port your Flask app will run on (default: 5000).') }}</li>
+                                    </ol>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i> {{ _('Each project must use a unique port to avoid conflicts.') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Managing Projects Section -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    <i class="fas fa-tasks me-2"></i> {{ _('Managing Projects') }}
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>{{ _('The dashboard provides various tools to manage your Flask projects:') }}</p>
+                                    <ul>
+                                        <li><strong>{{ _('Start/Stop:') }}</strong> {{ _('Control the execution of your Flask app.') }}</li>
+                                        <li><strong>{{ _('View Details:') }}</strong> {{ _('See comprehensive information about your project.') }}</li>
+                                        <li><strong>{{ _('View Logs:') }}</strong> {{ _('Monitor the console output of your running app.') }}</li>
+                                        <li><strong>{{ _('Manage Dependencies:') }}</strong> {{ _('Check and install project dependencies.') }}</li>
+                                        <li><strong>{{ _('Remove Project:') }}</strong> {{ _('Remove a project from the dashboard (this does not delete your project files).') }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dependencies Section -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    <i class="fas fa-cubes me-2"></i> {{ _('Dependency Management') }}
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>{{ _('The dashboard can automatically detect and install dependencies for your Flask projects:') }}</p>
+                                    <ol>
+                                        <li>{{ _('Go to the project details page.') }}</li>
+                                        <li>{{ _('Click "Check Dependencies" to scan for missing packages.') }}</li>
+                                        <li>{{ _('If missing dependencies are found, click "Install Dependencies" to install them.') }}</li>
+                                    </ol>
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i> {{ _('The dependency detection supports requirements.txt files and standard import statements in your code.') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Troubleshooting Section -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                    <i class="fas fa-bug me-2"></i> {{ _('Troubleshooting') }}
+                                </button>
+                            </h2>
+                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <h5>{{ _('Common Issues') }}</h5>
+                                    <ul>
+                                        <li>
+                                            <strong>{{ _('Project won\'t start:') }}</strong>
+                                            <ul>
+                                                <li>{{ _('Check that the path and entry file are correct.') }}</li>
+                                                <li>{{ _('Verify that all dependencies are installed.') }}</li>
+                                                <li>{{ _('Check the logs for specific error messages.') }}</li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <strong>{{ _('Port conflicts:') }}</strong>
+                                            <ul>
+                                                <li>{{ _('Ensure each project uses a unique port.') }}</li>
+                                                <li>{{ _('Check if another application is already using the specified port.') }}</li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <strong>{{ _('Missing dependencies:') }}</strong>
+                                            <ul>
+                                                <li>{{ _('Use the dependency checker to identify and install missing packages.') }}</li>
+                                                <li>{{ _('For packages not automatically detected, install them manually using pip.') }}</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

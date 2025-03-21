@@ -21,6 +21,11 @@
             <button class="btn btn-warning btn-remove-project" data-project-id="{{ project.id }}">
                 <i class="fas fa-trash me-1"></i>Remove
             </button>
+            {% if project.status == 'running' %}
+            <button id="open-btn-{{ project.id }}" class="btn btn-success" onclick="openProject('{{ project.port }}')">
+                <i class="fas fa-external-link-alt me-1"></i>Open
+            </button>
+            {% endif %}
         </div>
     </div>
     

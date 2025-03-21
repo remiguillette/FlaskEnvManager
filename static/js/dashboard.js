@@ -1,3 +1,20 @@
+function openProject(port) {
+    window.open(`http://0.0.0.0:${port}`, '_blank');
+}
+
+function updateOpenButton(projectId, status) {
+    const openBtn = document.getElementById(`open-btn-${projectId}`);
+    if (openBtn) {
+        if (status === 'running') {
+            openBtn.classList.add('btn-success');
+            openBtn.classList.remove('btn-secondary');
+        } else {
+            openBtn.classList.add('btn-secondary');
+            openBtn.classList.remove('btn-success');
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Show the dashboard after DOM is loaded
     document.getElementById('main-content').style.display = 'block';
@@ -64,6 +81,9 @@ function updateProjectStatus(project) {
     if (statusElement) {
         let statusClass = '';
         let statusText = '';
+        
+        // Update open button status
+        updateOpenButton(project.id, project.status);
         
         switch (project.status) {
             case 'running':

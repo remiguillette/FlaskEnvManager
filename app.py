@@ -117,6 +117,30 @@ def api_project_status(project_id):
         logger.error(f"Error getting status for project {project_id}: {str(e)}")
         return jsonify({"success": False, "message": str(e)}), 500
 
+@app.route('/api/project/<project_id>/files')
+def api_project_files(project_id):
+    """API endpoint to get important files for a project."""
+    try:
+        result = project_manager.get_project_files(project_id)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error getting files for project {project_id}: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@app.route('/api/project/<project_id>/file')
+def api_file_content(project_id):
+    """API endpoint to get the content of a specific file."""
+    try:
+        file_path = request.args.get('path')
+        if not file_path:
+            return jsonify({"success": False, "message": "No file path provided"}), 400
+        
+        result = project_manager.get_file_content(project_id, file_path)
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Error getting file content for project {project_id}: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 @app.route('/api/project/<project_id>/dependencies')
 def api_project_dependencies(project_id):
     """API endpoint to get the dependencies of a project."""

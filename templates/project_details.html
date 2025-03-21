@@ -106,6 +106,51 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Project Files</h5>
+                    <button id="refresh-files-btn" class="btn btn-sm btn-outline-primary" data-project-id="{{ project.id }}">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="filesTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="documentation-tab" data-bs-toggle="tab" data-bs-target="#documentation-tab-pane" type="button" role="tab">
+                                <i class="fas fa-book me-1"></i>Documentation
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="configuration-tab" data-bs-toggle="tab" data-bs-target="#configuration-tab-pane" type="button" role="tab">
+                                <i class="fas fa-cog me-1"></i>Configuration
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="dependencies-tab" data-bs-toggle="tab" data-bs-target="#dependencies-tab-pane" type="button" role="tab">
+                                <i class="fas fa-code-branch me-1"></i>Dependencies
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-3" id="filesTabContent">
+                        <div class="tab-pane fade show active" id="documentation-tab-pane" role="tabpanel" aria-labelledby="documentation-tab" tabindex="0">
+                            <div id="documentation-files">
+                                <p class="text-muted">Click "Refresh" to scan for documentation files</p>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="configuration-tab-pane" role="tabpanel" aria-labelledby="configuration-tab" tabindex="0">
+                            <div id="configuration-files">
+                                <p class="text-muted">Click "Refresh" to scan for configuration files</p>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="dependencies-tab-pane" role="tabpanel" aria-labelledby="dependencies-tab" tabindex="0">
+                            <div id="dependencies-files">
+                                <p class="text-muted">Click "Refresh" to scan for dependency files</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="col-md-6">
@@ -148,11 +193,14 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Get project ID from the page
+        const projectDetailsElement = document.getElementById('project-details');
+        const projectId = projectDetailsElement ? projectDetailsElement.dataset.projectId : null;
+        
         // Set up event listener for dependency check button
         const checkDependenciesBtn = document.getElementById('check-dependencies-btn');
         if (checkDependenciesBtn) {
             checkDependenciesBtn.addEventListener('click', function() {
-                const projectId = this.dataset.projectId;
                 checkDependencies(projectId);
             });
         }
@@ -161,9 +209,21 @@
         const installDependenciesBtn = document.getElementById('install-dependencies-btn');
         if (installDependenciesBtn) {
             installDependenciesBtn.addEventListener('click', function() {
-                const projectId = this.dataset.projectId;
                 installDependencies(projectId);
             });
+        }
+        
+        // Set up event listener for file refresh button
+        const refreshFilesBtn = document.getElementById('refresh-files-btn');
+        if (refreshFilesBtn) {
+            refreshFilesBtn.addEventListener('click', function() {
+                loadProjectFiles(projectId);
+            });
+        }
+        
+        // Auto-load project files on page load
+        if (projectId) {
+            loadProjectFiles(projectId);
         }
     });
 
@@ -303,6 +363,214 @@
             console.error('Error installing dependencies:', error);
             showToast('Error', 'Failed to install dependencies', 'danger');
         });
+    }
+    
+    function loadProjectFiles(projectId) {
+        // Get file container elements
+        const documentationContainer = document.getElementById('documentation-files');
+        const configurationContainer = document.getElementById('configuration-files');
+        const dependenciesFilesContainer = document.getElementById('dependencies-files');
+        
+        // Show loading state in all containers
+        const loadingHtml = `
+            <div class="text-center">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="ms-2">Scanning for project files...</span>
+            </div>
+        `;
+        
+        documentationContainer.innerHTML = loadingHtml;
+        configurationContainer.innerHTML = loadingHtml;
+        dependenciesFilesContainer.innerHTML = loadingHtml;
+        
+        // Fetch project files
+        fetch(`/api/project/${projectId}/files`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Unknown error');
+                }
+                
+                // Process documentation files
+                displayFileCategory(data.files.documentation, documentationContainer, 'documentation');
+                
+                // Process configuration files
+                displayFileCategory(data.files.configuration, configurationContainer, 'configuration');
+                
+                // Process dependency files
+                displayFileCategory(data.files.dependencies, dependenciesFilesContainer, 'dependencies');
+            })
+            .catch(error => {
+                console.error('Error loading project files:', error);
+                const errorHtml = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        Failed to load project files: ${error}
+                    </div>
+                `;
+                
+                documentationContainer.innerHTML = errorHtml;
+                configurationContainer.innerHTML = errorHtml;
+                dependenciesFilesContainer.innerHTML = errorHtml;
+            });
+    }
+    
+    function displayFileCategory(files, container, category) {
+        if (!files || files.length === 0) {
+            container.innerHTML = `<p class="text-muted">No ${category} files found in this project</p>`;
+            return;
+        }
+        
+        // Create list of files
+        const filesList = document.createElement('div');
+        filesList.className = 'list-group';
+        
+        files.forEach(file => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'list-group-item list-group-item-action';
+            
+            // Create file header with name and info
+            const fileHeader = document.createElement('div');
+            fileHeader.className = 'd-flex justify-content-between align-items-center';
+            
+            // File name and icon
+            let fileIcon = 'fa-file-alt';
+            if (file.name.endsWith('.md')) fileIcon = 'fa-file-alt';
+            if (file.name.endsWith('.yml') || file.name.endsWith('.yaml')) fileIcon = 'fa-file-code';
+            if (file.name.endsWith('.txt')) fileIcon = 'fa-file-alt';
+            if (file.name.endsWith('.ini')) fileIcon = 'fa-file-code';
+            if (file.name.endsWith('.json')) fileIcon = 'fa-file-code';
+            if (file.name === 'requirements.txt') fileIcon = 'fa-file-code';
+            
+            fileHeader.innerHTML = `
+                <h5 class="mb-1">
+                    <i class="fas ${fileIcon} me-2"></i>
+                    ${file.name}
+                </h5>
+                <small class="text-muted">
+                    ${formatFileSize(file.size)} | ${file.modified}
+                </small>
+            `;
+            
+            fileItem.appendChild(fileHeader);
+            
+            // If it's a text file, show preview or button to view content
+            if (file.is_text) {
+                // Show preview of file content
+                const previewContainer = document.createElement('div');
+                previewContainer.className = 'mt-2';
+                
+                // For requirements.txt, format as list
+                if (file.name === 'requirements.txt') {
+                    // Format as a neat dependency list
+                    const lines = file.preview.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+                    
+                    if (lines.length > 0) {
+                        const depList = document.createElement('div');
+                        depList.className = 'small fw-light text-muted mb-2';
+                        depList.textContent = `${lines.length} packages defined`;
+                        
+                        previewContainer.appendChild(depList);
+                        
+                        const pillContainer = document.createElement('div');
+                        pillContainer.className = 'd-flex flex-wrap gap-1';
+                        
+                        lines.slice(0, 10).forEach(dep => {
+                            const pill = document.createElement('span');
+                            pill.className = 'badge bg-secondary rounded-pill';
+                            pill.textContent = dep.split('==')[0].trim();
+                            pillContainer.appendChild(pill);
+                        });
+                        
+                        if (lines.length > 10) {
+                            const morePill = document.createElement('span');
+                            morePill.className = 'badge bg-secondary rounded-pill';
+                            morePill.textContent = `+${lines.length - 10} more`;
+                            pillContainer.appendChild(morePill);
+                        }
+                        
+                        previewContainer.appendChild(pillContainer);
+                    }
+                }
+                // For README.md, show rendered content
+                else if (file.name.endsWith('.md')) {
+                    const previewText = document.createElement('div');
+                    previewText.className = 'collapse mt-2';
+                    previewText.id = `preview-${file.name.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                    
+                    previewText.innerHTML = `
+                        <div class="card">
+                            <div class="card-body bg-dark text-light">
+                                <pre style="max-height: 200px; overflow-y: auto;">${escapeHtml(file.preview)}</pre>
+                            </div>
+                        </div>
+                    `;
+                    previewContainer.appendChild(previewText);
+                    
+                    const toggleButton = document.createElement('button');
+                    toggleButton.className = 'btn btn-sm btn-outline-secondary mt-2';
+                    toggleButton.setAttribute('data-bs-toggle', 'collapse');
+                    toggleButton.setAttribute('data-bs-target', `#preview-${file.name.replace(/[^a-zA-Z0-9]/g, '-')}`);
+                    toggleButton.innerHTML = '<i class="fas fa-eye me-1"></i>Preview Content';
+                    
+                    previewContainer.appendChild(toggleButton);
+                }
+                // For other text files
+                else {
+                    const previewText = document.createElement('div');
+                    previewText.className = 'collapse mt-2';
+                    previewText.id = `preview-${file.name.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                    
+                    previewText.innerHTML = `
+                        <div class="card">
+                            <div class="card-body bg-dark text-light">
+                                <pre style="max-height: 200px; overflow-y: auto;">${escapeHtml(file.preview)}</pre>
+                            </div>
+                        </div>
+                    `;
+                    previewContainer.appendChild(previewText);
+                    
+                    const toggleButton = document.createElement('button');
+                    toggleButton.className = 'btn btn-sm btn-outline-secondary mt-2';
+                    toggleButton.setAttribute('data-bs-toggle', 'collapse');
+                    toggleButton.setAttribute('data-bs-target', `#preview-${file.name.replace(/[^a-zA-Z0-9]/g, '-')}`);
+                    toggleButton.innerHTML = '<i class="fas fa-eye me-1"></i>Preview Content';
+                    
+                    previewContainer.appendChild(toggleButton);
+                }
+                
+                fileItem.appendChild(previewContainer);
+            }
+            
+            filesList.appendChild(fileItem);
+        });
+        
+        container.innerHTML = '';
+        container.appendChild(filesList);
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+    
+    function escapeHtml(html) {
+        return html
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 </script>
 {% endblock %}

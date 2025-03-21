@@ -319,6 +319,85 @@ class ProjectManager:
                 return 'stopped'
             return 'unknown'
     
+    def get_project_files(self, project_id):
+        """Get important files for a project."""
+        if project_id not in self.projects:
+            return {'success': False, 'message': 'Project not found'}
+        
+        project = self.projects[project_id]
+        path = project['path']
+        
+        # File categories to search for
+        file_categories = {
+            'documentation': ['README.md', 'README.txt', 'CHANGELOG.md', 'CONTRIBUTING.md', 'docs/index.md'],
+            'configuration': ['config.yaml', 'config.yml', 'settings.ini', '.env.example', 'pyproject.toml', 'setup.py'],
+            'dependencies': ['requirements.txt', 'Pipfile', 'poetry.lock', 'package.json']
+        }
+        
+        result = {
+            'success': True,
+            'files': {}
+        }
+        
+        # Check for files in each category
+        for category, file_list in file_categories.items():
+            result['files'][category] = []
+            
+            for file_name in file_list:
+                file_path = os.path.join(path, file_name)
+                if os.path.exists(file_path) and os.path.isfile(file_path):
+                    # Get file stats
+                    stats = os.stat(file_path)
+                    
+                    file_info = {
+                        'name': file_name,
+                        'path': file_path,
+                        'size': stats.st_size,
+                        'modified': time.ctime(stats.st_mtime)
+                    }
+                    
+                    # Try to determine if it's a text file that can be displayed
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            preview = f.read(1000)  # Read first 1000 chars as preview
+                            file_info['preview'] = preview
+                            file_info['is_text'] = True
+                    except UnicodeDecodeError:
+                        # Not a text file or not UTF-8 encoded
+                        file_info['is_text'] = False
+                    except Exception as e:
+                        logger.error(f"Error reading file {file_path}: {e}")
+                        file_info['is_text'] = False
+                    
+                    result['files'][category].append(file_info)
+        
+        return result
+    
+    def get_file_content(self, project_id, file_path):
+        """Get the content of a specific file."""
+        if project_id not in self.projects:
+            return {'success': False, 'message': 'Project not found'}
+        
+        project = self.projects[project_id]
+        project_path = project['path']
+        
+        # Ensure the file is within the project directory (security check)
+        if not os.path.abspath(file_path).startswith(os.path.abspath(project_path)):
+            return {'success': False, 'message': 'File path is outside project directory'}
+        
+        if not os.path.exists(file_path) or not os.path.isfile(file_path):
+            return {'success': False, 'message': 'File not found'}
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                return {'success': True, 'content': content}
+        except UnicodeDecodeError:
+            return {'success': False, 'message': 'File is not a text file or not UTF-8 encoded'}
+        except Exception as e:
+            logger.error(f"Error reading file {file_path}: {e}")
+            return {'success': False, 'message': f'Error reading file: {str(e)}'}
+    
     def check_dependencies(self, project_id):
         """Check and return the dependencies of a project."""
         if project_id not in self.projects:
